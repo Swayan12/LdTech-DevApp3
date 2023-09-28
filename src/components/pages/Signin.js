@@ -14,7 +14,7 @@ function Signin({ setIsAuthenticated }) {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://13.234.23.179:3004/auth/signin', {
+      const response = await axios.post('http://localhost:3004/auth/signin', {
         username,
         password,
       });

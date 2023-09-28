@@ -3,17 +3,17 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
-const retry = require('async-retry');
 
 const authRoute = require('./src/routes/authRoutes');
 const contactRoute = require('./src/routes/contactRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3004;
+const PORT = process.env.PORT || 3004 ;
 
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
+app.use(express.json());
 
 // Routes
 app.use('/auth', authRoute);
@@ -25,12 +25,10 @@ app.use('/contact', contactRoute);
 // Enable CORS for your React app's origin
 app.use(
   cors({
-   // origin: "http://localhost:3000", 
-   origin: "http://13.234.23.179:3001", 
-    credentials: true,
+   origin: "http://localhost:3000", 
+   credentials: false,
   })
 );
-
 
 app.get('/authorize', (req, res) => {
   // Redirect the user to GitHub for authorization.
@@ -265,58 +263,13 @@ app.get('/api/grafana', async(req, res) => {
   }
 })
 
-// Replace with your Jenkins server URL, username, and password
-const jenkinsUrl = 'http://13.234.23.179:8080/';
-const jenkinsUsername = 'DevOpsLD';
-const jenkinsPassword = '11be252343288acd8c015a80e700167d3f';
 
-app.use(express.json());
-
-// Endpoint to create a new Jenkins job
-app.post('/create-job/:name', async (req, res) => {
-  try {
-    const jobName = req.params.name; // Get the job name from the URL parameter
-
-    // Configure the Jenkins authentication
-    const auth = {
-      username: jenkinsUsername,
-      password: jenkinsPassword,
-    };
-
-    // Fetch Jenkins crumb for CSRF protection (optional, but recommended)
-    const crumbResponse = await axios.get(`${jenkinsUrl}/crumbIssuer/api/json`, {
-      auth,
-    });
-
-    const crumb = crumbResponse.data.crumb;
-
-    // Define the XML request body for the job configuration
-    const jobXml = `
-      <project> 
-        <builders>
-        </builders>
-        <publishers>
-        </publishers>
-        <buildWrappers> 
-        </buildWrappers>
-      </project>
-    `;
-
-    // Make a POST request to create the Jenkins job
-    const response = await axios.post(`${jenkinsUrl}/createItem?name=${jobName}`, jobXml, {
-      headers: {
-        'Content-Type': 'application/xml',
-        'Jenkins-Crumb': crumb, // Include the crumb in the headers for CSRF protection
-      },
-      auth,
-    });
-
-    res.status(response.status).json({ message: 'Jenkins job created successfully' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'An error occurred while creating the Jenkins job.' });
-  }
+// Enable CORS (Cross-Origin Resource Sharing)
+app.use((req, res, next) => {
+  res.setHeader( 'Content-Type, Authorization');
+  next();
 });
+
 
 //App running on port 
 app.listen(PORT, (err)=>{
