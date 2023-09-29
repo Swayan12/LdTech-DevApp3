@@ -5,7 +5,7 @@ const axios = require("axios");
 // Define your GitHub OAuth configuration here
 const clientId = '787dea0261fc8914ebd0';
 const clientSecret = 'ce334ebbdd0c355906ff23ba9fc533e17dca2f6f';
-const redirectUri = "http://localhost:8000/callback";
+const redirectUri = "http://13.234.23.179:3001/github";
 
 // Define your API routes here
 router.get("/auth", (req, res) => {
@@ -38,7 +38,7 @@ router.get("/callback", async (req, res) => {
       req.session.accessToken = accessToken;
   
       // Redirect back to the frontend without the access token in the URL
-      res.redirect("http://localhost:3000"); // Change the URL to your frontend URL
+      res.redirect("http://13.234.23.179:3001"); // Change the URL to your frontend URL
     } catch (error) {
       console.error(error);
   
