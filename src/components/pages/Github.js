@@ -17,7 +17,7 @@ function Github() {
   
   const handleAuthorize = () => {
     // Redirect the user to your server's /authorize route
-    window.location.href = 'http://localhost:3004/authorize'; // Change this URL to your server's URL
+    window.location.href = 'http://13.234.23.179:3004/authorize'; // Change this URL to your server's URL
   };
 
   const handleSearch = async () => {
