@@ -20,7 +20,7 @@ const Newdeployment = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:3004/api/jenkins/createPipeline', formData);
+      const response = await axios.post('http://13.234.23.179:3004/api/jenkins/createPipeline', formData);
 
       if (response.status === 200) {
         alert('Jenkins pipeline job created successfully');
@@ -36,7 +36,7 @@ const Newdeployment = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:3004/api/jenkins/triggerBuild', {
+      const response = await axios.post('http://13.234.23.179:3004/api/jenkins/triggerBuild', {
         pipelineName: formData.pipelineName,
       });
 

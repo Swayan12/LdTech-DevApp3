@@ -8,7 +8,7 @@ import './Logfiles.css';
     const [logs, setLogs] = useState([])
     //connecting to frontend
 
-    const GrafanaApi = 'http://localhost:3004/api/grafana';
+    const GrafanaApi = 'http://13.234.23.179:3004/api/grafana';
 
     const fetchGrafana = async () => {
         try{

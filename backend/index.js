@@ -25,7 +25,7 @@ app.use('/contact', contactRoute);
 // Enable CORS for your React app's origin
 app.use(
   cors({
-   origin: "http://localhost:3000", 
+   origin: "http://13.234.23.179:3000", 
    credentials: false,
   })
 );

@@ -14,8 +14,8 @@ const Testing = () => {
   const [totalIssues, setTotalIssues] = useState(0); // Total number of issues
   const [activeTab, setActiveTab] = useState('projects'); // To track active tab (projects or issues)
 
-  const backendUrl = 'http://localhost:3004/api/projects';
-  const backendUrlIssues = 'http://localhost:3004/api/issues';
+  const backendUrl = 'http://13.234.23.179:3004/api/projects';
+  const backendUrlIssues = 'http://13.234.23.179:3004/api/issues';
 
   const fetchProjects = async () => {
     try {
@@ -24,13 +24,13 @@ const Testing = () => {
       setProjects(projectsResponse.data);
 
       // Fetch bug data
-      const bugsResponse = await axios.get('http://localhost:3004/api/bugs');
+      const bugsResponse = await axios.get('http://13.234.23.179:3004/api/bugs');
       setBugsData(bugsResponse.data.projects);
 
       // Fetch alert_status for each project
       const alertStatusData = {};
       for (const project of projectsResponse.data) {
-        const alertStatusResponse = await axios.get(`http://localhost:3004/api/alert-status/${project.key}`);
+        const alertStatusResponse = await axios.get(`http://13.234.23.179:3004/api/alert-status/${project.key}`);
         alertStatusData[project.key] = alertStatusResponse.data.alert_status;
       }
       setAlertStatusData(alertStatusData);

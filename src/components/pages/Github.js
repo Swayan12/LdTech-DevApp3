@@ -157,7 +157,7 @@ function usePersistentState(key, initialState) {
 
   async function getAccessToken(code) {
     try {
-      const response = await fetch(`http://localhost:5000/callback?code=${code}`);
+      const response = await fetch(`http://13.234.23.179:3004/callback?code=${code}`);
       const data = await response.json(); // Parse the response as JSON
       console.log(data);
       if (data.status === 'success') {

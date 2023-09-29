@@ -37,7 +37,7 @@ function Signup() {
     }
     
     try {
-      const response = await axios.post('http://localhost:3004/auth/signup', formData);
+      const response = await axios.post('http://13.234.23.179:3004/auth/signup', formData);
       console.log(response.data);
       setMessage(response.data.message); // Set the success message
       setError('');
