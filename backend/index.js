@@ -264,10 +264,118 @@ app.get('/api/grafana', async(req, res) => {
 })
 
 
-// Enable CORS (Cross-Origin Resource Sharing)
-app.use((req, res, next) => {
-  res.setHeader( 'Content-Type, Authorization');
-  next();
+
+// Configuration values
+const jenkinsUrl = 'http://13.234.23.179:8080';
+const jenkinsUsername = 'DevOpsLD';
+const jenkinsApiToken = '11be252343288acd8c015a80e700167d3f';
+
+// Middleware
+app.use(bodyParser.json());
+
+// Function to generate pipeline XML
+function generatePipelineXml(pipelineName, pipelineDescription, gitRepoUrl, gitBranch, jenkinsfilePath) {
+  const pipelineXmlTemplate = `<flow-definition plugin="workflow-job@2.42">
+    <actions/>
+    <description>${pipelineDescription}</description>
+    <keepDependencies>false</keepDependencies>
+    <properties/>
+    <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.92">
+      <scm class="hudson.plugins.git.GitSCM" plugin="git@4.11.0">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <url>${gitRepoUrl}</url>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+          <hudson.plugins.git.BranchSpec>
+            <name>${gitBranch}</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <submoduleCfg class="list"/>
+        <extensions/>
+      </scm>
+      <scriptPath>${jenkinsfilePath}</scriptPath>
+      <lightweight>true</lightweight>
+    </definition>
+    <triggers/>
+  </flow-definition>`;
+
+  const pipelineXml = pipelineXmlTemplate
+    .replace('${PIPELINE_DESCRIPTION}', pipelineDescription)
+    .replace('${GIT_REPO_URL}', gitRepoUrl)
+    .replace('${GIT_BRANCH}', gitBranch)
+    .replace('${JENKINSFILE_PATH}', jenkinsfilePath);
+
+  return pipelineXml;
+}
+
+// Function to create a pipeline
+async function createPipeline(pipelineName, pipelineXml) {
+  const apiUrl = `${jenkinsUrl}/createItem?name=${pipelineName}`;
+  const auth = {
+    username: jenkinsUsername,
+    password: jenkinsApiToken,
+  };
+
+  const headers = {
+    'Content-Type': 'application/xml',
+  };
+
+  try {
+    const response = await axios.post(apiUrl, pipelineXml, { auth, headers });
+    return response.status === 200;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
+
+// Function to trigger a Jenkins job build
+async function triggerJenkinsJobBuild(pipelineName) {
+  const apiUrl = `${jenkinsUrl}/job/${pipelineName}/build`;
+  const auth = {
+    username: jenkinsUsername,
+    password: jenkinsApiToken,
+  };
+
+  try {
+    const response = await axios.post(apiUrl, null, { auth });
+    return response.status === 201; // 201 indicates a successful build trigger
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
+// Endpoint to create a Jenkins pipeline job
+app.post('/api/jenkins/createPipeline', async (req, res) => {
+  const { pipelineName, pipelineDescription, gitRepoUrl, gitBranch, jenkinsfilePath } = req.body;
+  const pipelineXml = generatePipelineXml(pipelineName, pipelineDescription, gitRepoUrl, gitBranch, jenkinsfilePath);
+
+  const created = await createPipeline(pipelineName, pipelineXml);
+
+  if (created) {
+    res.status(200).json({ message: 'Jenkins pipeline job created successfully' });
+  } else {
+    res.status(500).json({ message: 'Failed to create Jenkins pipeline job' });
+  }
+});
+
+// Endpoint to trigger a Jenkins job build
+app.post('/api/jenkins/triggerBuild', async (req, res) => {
+  const { pipelineName } = req.body;
+
+  const triggered = await triggerJenkinsJobBuild(pipelineName);
+
+  if (triggered) {
+    res.status(200).json({ message: 'Jenkins pipeline job build triggered successfully' });
+  } else {
+    res.status(500).json({ message: 'Failed to trigger Jenkins pipeline job build' });
+  }
 });
 
 

@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState } from 'react';
+import axios from 'axios';
+import './Newdeployment.css';
 
-function Newdeployment() {
+const Newdeployment = () => {
   const [formData, setFormData] = useState({
     pipelineName: '',
     pipelineDescription: '',
     gitRepoUrl: '',
     gitBranch: '',
-    jenkinsfilePath: ''
+    jenkinsfilePath: '',
   });
 
-  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -19,46 +19,41 @@ function Newdeployment() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('Request Payload:', formData);
-
-    // Check if all required fields are filled in
-    const requiredFields = ['pipelineName', 'gitRepoUrl', 'jenkinsfilePath'];
-    const missingFields = requiredFields.filter(field => !formData[field]);
-    if (missingFields.length > 0) {
-      alert(`Please fill in the following required fields: ${missingFields.join(', ')}`);
-      return;
-    }
-
-    // Create the Axios request body
-    const requestBody = {
-      pipelineName: formData.pipelineName,
-      pipelineDescription: formData.pipelineDescription,
-      gitRepoUrl: formData.gitRepoUrl,
-      gitBranch: formData.gitBranch,
-      jenkinsfilePath: formData.jenkinsfilePath
-    };
-    
-
-    // Send the Axios request
     try {
-      const response = await axios.post('http://13.234.23.179:9090/api/jenkins/createPipeline', requestBody);
+      const response = await axios.post('http://localhost:3004/api/jenkins/createPipeline', formData);
 
       if (response.status === 200) {
         alert('Jenkins pipeline job created successfully');
       } else {
         alert('Error creating Jenkins pipeline job');
-
-        // Log the error to the console for debugging
-        console.log(response);
       }
     } catch (error) {
-      alert("Error occured");
       console.error('Error:', error);
     }
   };
 
+  const handleTriggerBuild = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post('http://localhost:3004/api/jenkins/triggerBuild', {
+        pipelineName: formData.pipelineName,
+      });
+
+      if (response.status === 200) {
+        alert('Jenkins pipeline job build triggered successfully');
+      } else {
+        alert('Error triggering Jenkins pipeline job build');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+
   return (
-    <div>
+    <div className='Container'>
+      <div className='jenkinsformContainer'>
       <h2>Create Jenkins Pipeline Job</h2>
       <form onSubmit={handleSubmit}>
         <div>
@@ -69,6 +64,7 @@ function Newdeployment() {
             name="pipelineName"
             value={formData.pipelineName}
             onChange={handleChange}
+            required
           />
         </div>
         <div>
@@ -89,6 +85,7 @@ function Newdeployment() {
             name="gitRepoUrl"
             value={formData.gitRepoUrl}
             onChange={handleChange}
+            required
           />
         </div>
         <div>
@@ -109,14 +106,36 @@ function Newdeployment() {
             name="jenkinsfilePath"
             value={formData.jenkinsfilePath}
             onChange={handleChange}
+            required
           />
         </div>
         <div>
           <button type="submit">Create Job</button>
         </div>
       </form>
+      </div>
+     <div  className='jenkinslastContainer'>
+     <h2>Trigger Jenkins Pipeline Build</h2>
+      <form onSubmit={handleTriggerBuild}>
+        <div>
+          <label htmlFor="pipelineNameBuild">Pipeline Name:</label>
+          <input
+            type="text"
+            id="pipelineNameBuild"
+            name="pipelineName"
+            value={formData.pipelineName}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <button type="submit">Trigger Build</button>
+        </div>
+      </form>
+     </div>
+      
     </div>
   );
-}
+};
 
 export default Newdeployment;
